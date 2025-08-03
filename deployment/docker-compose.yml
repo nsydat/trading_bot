@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  trading-bot:
+    build: 
+      context: ..
+      dockerfile: deployment/Dockerfile
+    container_name: trading-bot
+    restart: unless-stopped
+    environment:
+      - PYTHONPATH=/app
+    env_file:
+      - ../.env
+    volumes:
+      - ../data:/app/data
+      - ../logs:/app/logs
+    ports:
+      - "8501:8501"  # Dashboard
+    networks:
+      - trading-network
+    depends_on:
+      - redis
+      - postgres
+
+  redis:
+    image: redis:7-alpine
+    container_name: trading-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    networks:
+      - trading-network
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: trading-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: trading_bot
+      POSTGRES_USER: trading_user
+      POSTGRES_PASSWORD: trading_pass
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - trading-network
+
+networks:
+  trading-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
