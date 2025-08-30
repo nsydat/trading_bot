@@ -44,4 +44,4 @@ mypy==1.8.0
 
 # Deployment
 docker==7.0.0
-kubernetes==28.1.0
+kubernetes==28.1.0python-binance==1.0.19
