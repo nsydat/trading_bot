@@ -616,6 +616,23 @@ Examples:
     )
     
     parser.add_argument(
+        '--backtest', '-b',
+        action='store_true',
+        help='Run in backtest mode instead of live trading'
+    )
+    
+    parser.add_argument(
+        '--strategy', 
+        choices=['ema_crossover', 'simple_ma', 'rsi'],
+        help='Strategy to use for backtesting'
+    )
+    
+    parser.add_argument(
+        '--backtest-days', type=int, default=365,
+        help='Number of days to backtest (default: 365)'
+    )
+    
+    parser.add_argument(
         '--version', '-v',
         action='version',
         version='Trading Bot v1.0.0'
@@ -640,6 +657,32 @@ Examples:
         from pathlib import Path
         if not Path(args.config).exists():
             print(f"❌ Configuration file not found: {args.config}")
+            return 1
+    
+    # Run backtest mode if requested
+    if args.backtest:
+        try:
+            from run_backtest import BacktestRunner
+            runner = BacktestRunner()
+            
+            if args.strategy:
+                print(f"🔄 Running backtest with {args.strategy} strategy...")
+                results = await runner.run_backtest(
+                    strategy_name=args.strategy,
+                    symbol="BTCUSDT",
+                    days=args.backtest_days,
+                    initial_capital=10000.0
+                )
+                runner.print_results(results)
+                return 0
+            else:
+                print("📊 Available strategies:")
+                runner.list_strategies()
+                print("\n💡 Use --strategy <name> to run a specific strategy")
+                return 0
+                
+        except Exception as e:
+            print(f"❌ Backtest error: {e}")
             return 1
     
     # Run the application

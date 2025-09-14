@@ -31,7 +31,7 @@ from core.utils.exceptions import (
     InitializationError,
     StrategyError,
     RiskManagementError,
-    DataFetchError,
+    DataError,
     OrderExecutionError,
     ExchangeConnectionError
 )
@@ -359,7 +359,7 @@ class TradingBotController:
                 limit=10
             )
             if test_data.empty:
-                raise DataFetchError("No market data available")
+                raise DataError("No market data available")
         except Exception as e:
             raise InitializationError(f"Market data health check failed: {e}")
         
@@ -393,7 +393,7 @@ class TradingBotController:
                 self.logger.info(f"📊 Loaded {len(self.market_data)} data points")
                 self.logger.info(f"💰 Current price: ${self.current_price:,.2f}")
             else:
-                raise DataFetchError("No initial data loaded")
+                raise DataError("No initial data loaded")
                 
         except Exception as e:
             raise InitializationError(f"Failed to load initial data: {e}")
@@ -644,7 +644,7 @@ class TradingBotController:
                 self.last_data_update = datetime.now()
                 
         except Exception as e:
-            raise DataFetchError(f"Failed to update market data: {e}")
+            raise DataError(f"Failed to update market data: {e}")
     
     async def _update_positions(self):
         """Update open positions and calculate current PnL."""
